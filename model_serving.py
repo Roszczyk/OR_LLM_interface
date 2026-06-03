@@ -1,6 +1,13 @@
 import openvino_genai as ov_genai
 from pathlib import Path
 
+class ModelStruct:
+    def __init__(self, hf_name : str, local_path : Path, weights_format : str):
+        self.hf_name = hf_name
+        self.local_path = local_path
+        self.weights_format = weights_format
+
+
 def run_model(model_path, prompt, device = "GPU", max_new_tokens=1000):
     pipe = ov_genai.LLMPipeline(model_path, device)
     return pipe.generate(prompt, max_new_tokens=max_new_tokens)
