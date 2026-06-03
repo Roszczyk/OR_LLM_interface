@@ -1,0 +1,6 @@
+openvino
+openvino-genai
+openvino-tokenizers
+optimum[openvino]
+optimum-intel
+transformers
