@@ -4,6 +4,8 @@ from pathlib import Path
 def download_model(model_name: str, weight_format : str, save_dir : Path):
     command = f"optimum-cli export openvino --model {model_name} --weight-format {weight_format} --trust-remote-code {save_dir}"
     result = subprocess.run(command.split(), capture_output=True, text=True)
+    if "error" in result.stdout or "error" in result.stderr:
+        raise Exception(f"Unable to download model {model_name}\nStderr: {result.stderr}")
     return result
 
 

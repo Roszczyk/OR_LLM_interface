@@ -8,18 +8,14 @@ CONTEXT_DIR = Path(__file__).parent
 models = dict({
     "TinyLlama-1.1B_int4" : ModelStruct("TinyLlama/TinyLlama-1.1B-Chat-v1.0",
                                         CONTEXT_DIR / "models/TinyLlama_1_1b_v1_ov",
-                                        "int4")
+                                        "int4"),
+    "shit" : ModelStruct("shit", CONTEXT_DIR / "shit", "shit")
 })
 
 for m in models.keys():
     try:
         if not models[m].local_path.exists():
             res = download_model(models[m].hf_name, models[m].weights_format, models[m].local_path)
-            if "error" in res.stdout or "error" in res.stderr:
-                print(f"[ ERROR ] Unable to download model {m}")
-                print(f"STDOUT: {res.stdout}")
-                print(f"STDERR: {res.stderr}")
-                raise Exception
         prompt = "What is OpenVINO?"
         model_reply = run_model(models[m].local_path, prompt)
         print(f"==> {m} reply to prompt \"{prompt}\":")
