@@ -1,9 +1,13 @@
 import subprocess
 from pathlib import Path
 
-COMMAND = "optimum-cli export openvino --model TinyLlama/TinyLlama-1.1B-Chat-v1.0 --weight-format int4 --trust-remote-code TinyLlama_1_1b_v1_ov"
-CONTEXT = Path(__file__).parent.resolve()
+def download_model(model_name: str, weight_format : str, save_dir : Path):
+    command = f"optimum-cli export openvino --model {model_name} --weight-format {weight_format} --trust-remote-code {save_dir}"
+    result = subprocess.run(command.split(), capture_output=True, text=True)
+    return result
 
-result = subprocess.run(COMMAND.split(), cwd=CONTEXT, capture_output=True, text=True)
 
-print(result)
+# MANUAL TESTING:
+if __name__ == "__main__":
+    save_dir = Path(__file__).parent / "models/TinyLlama2"
+    download_model("TinyLlama/TinyLlama-1.1B-Chat-v1.0", "int4", save_dir)
