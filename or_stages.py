@@ -1,7 +1,7 @@
-from model_serving import run_model, ModelStruct
+from model_serving import OV_Local_Inference, ModelStruct
 
-def stage_validate_task(model : ModelStruct, task : str, device = "GPU", max_new_tokens = 1000):
-    prompt = f"""
+def stage_validate_task(model : ModelStruct, task : str, max_new_tokens = 1000):
+    system_prompt = f"""
 You are an optimization problem validator.
 
 Your task is to check whether the optimization problem contains enough information to create a complete AMPL model.
@@ -25,12 +25,15 @@ followed by a short list of missing information.
 Do not explain anything else.
 Do not solve the problem.
 Do not generate AMPL.
-
+"""
+    
+    prompt = f"""
 ### OPTIMIZATION PROBLEM ###
 {task}
 ### END ###
 """
-    reply = run_model(model.local_path, prompt, device, max_new_tokens)
+    inference_engine = OV_Local_Inference(system_prompt, model.local_path, model.weights_format, "GPU")
+    reply = inference_engine.run_inference(prompt, max_new_tokens)
     if "%DONE%" in reply:
         return dict({
             "validation" : True
@@ -42,17 +45,14 @@ Do not generate AMPL.
         })
 
 
-def stage_define_ampl(model : ModelStruct, task : str, device = "GPU", max_new_tokens = 2000):
+def stage_define_ampl(model_serving : ModelStruct, task : str, max_new_tokens = 2000):
+    system_prompt = "Create an AMPL model. In your answer should be ONLY an AMPL model. DO NOT put any additional comments."
+    inference_engine = OV_Local_Inference(system_prompt, model_serving.local_path, model_serving.weights_format, "GPU")
     prompt = f"""
-Task:
-Create an AMPL model. In your answer should be ONLY an AMPL model. DO NOT put any additional comments.
-
 Optimization problem:
 {task}
-
-Answer:
 """
-    ampl_model = run_model(model.local_path, prompt, device, max_new_tokens)
+    ampl_model = inference_engine.run_inference(prompt, max_new_tokens)
     return ampl_model
 
 

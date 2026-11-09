@@ -4,3 +4,4 @@ openvino-tokenizers
 optimum[openvino]
 optimum-intel
 transformers
+openai

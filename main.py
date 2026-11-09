@@ -1,5 +1,7 @@
-from model_serving import run_model, ModelStruct
-from save_model import download_model
+from model_serving import ModelStruct
+from tasks_library.task_util import Task
+from tasks_library.linear_programming import LP_TASKS_COLLECTION
+from or_stages import stage_validate_task, stage_define_ampl
 
 from pathlib import Path
 
@@ -9,20 +11,32 @@ models = dict({
     "TinyLlama-1.1B_int4" : ModelStruct("TinyLlama/TinyLlama-1.1B-Chat-v1.0",
                                         CONTEXT_DIR / "models/TinyLlama_1_1b_v1_ov",
                                         "int4"),
-    "Qwen2-7B_fp16" : ModelStruct("Qwen/Qwen2-7B",
-                                        CONTEXT_DIR / "models/Qwen2-7B", 
-                                        "fp16")
+    # "Qwen2-7B_fp16" : ModelStruct("Qwen/Qwen2-7B",
+    #                                 CONTEXT_DIR / "models/Qwen2-7B", 
+    #                                 "fp16")
 })
 
-if __name__ == "__main__":
+def run(models : dict[str, ModelStruct], tasks : dict[str, Task]):
+    # COLLECT ALL MODELS
+    print("[ INFO ] Collecting all the models...")
     for m in models.keys():
-        try:
-            if not models[m].local_path.exists():
-                print(f"==> Downloading {m}...")
-                res = download_model(models[m].hf_name, models[m].weights_format, models[m].local_path)
-            prompt = "What is OpenVINO?"
-            model_reply = run_model(models[m].local_path, prompt)
-            print(f"==> {m} reply to prompt \"{prompt}\":")
-            print(model_reply)
-        except Exception as e:
-            print(f"[ ERROR ] {m} has not work properly. Exception happened: {e}")
+        if not models[m].enable_model():
+            models.pop(m)
+
+    # CHECK ALL TASKS
+    for t in tasks.keys():
+        print(f"=== TASK {t} ===")
+        for m in models.keys():
+            task_validation = stage_validate_task(models[m], tasks[t].task)
+            if not task_validation["validation"]:
+                print(f"==> Model {m} did not validate task {t}")
+                print(f"Problems diagnozed with task {t}:\n {task_validation["instruction"]}")
+            else:
+                print(f"==> Model {m} validated task {t}")
+            ampl_model = stage_define_ampl(models[m], tasks[t].task)
+            print(f"==> {m} prepared AMPL model for task {t}: ")
+            print(ampl_model)
+
+
+if __name__ == "__main__":
+    run(models, LP_TASKS_COLLECTION)
