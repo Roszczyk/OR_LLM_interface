@@ -1,0 +1,3 @@
+[submodule "tasks_library/NLP4LP"]
+	path = tasks_library/NLP4LP
+	url = https://huggingface.co/datasets/udell-lab/NLP4LP
