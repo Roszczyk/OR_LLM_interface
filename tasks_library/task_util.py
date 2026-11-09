@@ -1,8 +1,12 @@
+class Solution:
+    def __init__(self, variables : dict, objective : float):
+        self.variables = variables
+        self.objective = objective
+
 class Task:
-    def __init__(self, task : str, value_at_optimum : float = None, is_complete = True):
+    def __init__(self, task : str, solution : Solution):
         self.task = task
-        self.value_at_optimum = value_at_optimum
-        self.is_complete = is_complete
+        self.solution = solution
 
     def llm_ampl_model(self):
         # preparing AMPL model using LLM for comparison
