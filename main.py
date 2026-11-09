@@ -1,6 +1,7 @@
 from model_serving import ModelStruct
 from tasks_library.task_util import Task
-from tasks_library.linear_programming import LP_TASKS_COLLECTION
+# from tasks_library.linear_programming import LP_TASKS_COLLECTION
+from tasks_library.NLP4LP import NLP4LP_EASY
 from or_stages import stage_validate_task, stage_define_ampl
 
 from pathlib import Path
@@ -39,4 +40,4 @@ def run(models : dict[str, ModelStruct], tasks : dict[str, Task]):
 
 
 if __name__ == "__main__":
-    run(models, LP_TASKS_COLLECTION)
+    run(models, NLP4LP_EASY)

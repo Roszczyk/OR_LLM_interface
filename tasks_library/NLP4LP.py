@@ -5,7 +5,7 @@ import json
 
 NLP4LP_path = Path(__file__).parent / "NLP4LP"
 
-def get_easy_NLP4LP():
+def get_NLP4LP(only_easy : bool = False):
     assert NLP4LP_path.exists(), "Submodule NLP4LP not initiated. Run `git submodule update --init --recursive`"
     data_dir = NLP4LP_path / "data"
 
@@ -19,13 +19,20 @@ def get_easy_NLP4LP():
             solution_read = json.load(f)
         return Solution(solution_read["variables"], solution_read["objective"])
 
+    def read_difficulty(problem_dir : Path):
+        with open(problem_dir / "metadata.json", "r") as f:
+            metadata_read = json.load(f)
+        return metadata_read["type"]
+
     NLP4LP_tasks_list = {}
 
     for x in [x for x in data_dir.iterdir() if x.is_dir()]:
         try:
-            NLP4LP_tasks_list[x.stem] = Task(read_problem_description(x), read_problem_solution(x))
+            if not only_easy or read_difficulty(x) == "easy":
+                NLP4LP_tasks_list[x.stem] = Task(read_problem_description(x), read_problem_solution(x))
         except Exception as e:
             continue
 
     return NLP4LP_tasks_list
 
+NLP4LP_EASY = get_NLP4LP(only_easy = True)
