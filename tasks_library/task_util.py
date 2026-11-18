@@ -4,9 +4,10 @@ class Solution:
         self.objective = objective
 
 class Task:
-    def __init__(self, task : str, solution : Solution):
+    def __init__(self, task : str, solution : Solution = None):
         self.task = task
-        self.solution = solution
+        if solution is not None:
+            self.solution = solution
 
     def llm_ampl_model(self):
         # preparing AMPL model using LLM for comparison
